@@ -21,17 +21,29 @@ struct Screenshot {
     let screen: UIImage
     let filename: String
     
+    var isPhone: Bool {
+        return screen.size.height <= Size.phone.height
+    }
+    var isPortrait: Bool {
+        return screen.size.height > screen.size.width
+    }
+    
     var size: CGSize {
-        return Size.phone
+        let size = isPhone ? Size.phone : Size.pad
+        return isPortrait ? size : CGSize(width: size.height, height: size.width)
     }
     var rect: CGRect {
         return CGRect(origin: CGPoint.zero, size: size)
     }
     
+    var length: CGFloat {
+        return isPortrait ? size.height : size.width
+    }
+    
     let titleRectScale: CGFloat = 0.1
     var titleRect: CGRect {
         var rect = self.rect
-        rect.size.height *= titleRectScale
+        rect.size.height = length * titleRectScale
         return rect
     }
     
@@ -57,7 +69,7 @@ struct Screenshot {
         
         let context = UIGraphicsGetCurrentContext()!
         
-        context.setFillColor(config.backgroundColor.cgColor)
+        config.backgroundColor.setFill()
         context.fill(rect)
         
         drawDevice(in: context)
@@ -75,11 +87,24 @@ struct Screenshot {
         let transform = CGAffineTransform(scaleX: scale, y: scale)
         
         let deviceSize = Device.phone.size.applying(transform)
-        let deviceOrigin = CGPoint(
-            x: rect.midX - deviceSize.width / 2.0,
-            y: rect.midY - deviceSize.height / 2.0
-        )
-        Device.phone.draw(in: CGRect(origin: deviceOrigin, size: deviceSize).offsetBy(dx: 0.0, dy: titleRect.height))
+        
+        if isPortrait {
+            let deviceOrigin = CGPoint(
+                x: rect.midX - deviceSize.width / 2.0,
+                y: rect.midY - deviceSize.height / 2.0
+            )
+            Device.phone.draw(in: CGRect(origin: deviceOrigin, size: deviceSize).offsetBy(dx: 0.0, dy: titleRect.height))            
+        } else {
+            let deviceOrigin = CGPoint(
+                x: rect.midY - deviceSize.width / 2.0,
+                y: rect.midX - deviceSize.height / 2.0
+            )
+            context.saveGState()
+            context.scaleBy(x: 1.0, y: -1.0)
+            context.rotate(by: -90.0 * CGFloat(M_PI) / 180.0)
+            Device.phone.draw(in: CGRect(origin: deviceOrigin, size: deviceSize).offsetBy(dx: titleRect.height, dy: 0.0))
+            context.restoreGState()
+        }
         
         let screenSize = screen.size.applying(transform)
         let screenOrigin = CGPoint(
@@ -90,7 +115,7 @@ struct Screenshot {
     }
     
     func textAttributes(_ config: ScreenshotConfig) -> [String : Any] {
-        let fontSize = size.height * config.fontSizeScaleY
+        let fontSize = length * config.fontSizeScaleY
         
         let defaultStyle = NSParagraphStyle.default
         let style = defaultStyle.mutableCopy() as! NSMutableParagraphStyle
