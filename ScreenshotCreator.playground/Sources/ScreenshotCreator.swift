@@ -22,7 +22,7 @@ struct Screenshot {
     let filename: String
     
     var isPhone: Bool {
-        return screen.size.height <= Size.phone.height
+        return length <= Size.phone.height
     }
     var isPortrait: Bool {
         return screen.size.height > screen.size.width
@@ -37,7 +37,7 @@ struct Screenshot {
     }
     
     var length: CGFloat {
-        return isPortrait ? size.height : size.width
+        return max(screen.size.width, screen.size.height)
     }
     var device: UIImage {
         return isPhone ? Device.phone : Device.pad
@@ -171,7 +171,6 @@ public struct ScreenshotConfig {
 
 public struct ScreenshotCreator {
     public init() {
-        
     }
 
     public func preview(config: ScreenshotConfig) -> [UIImage] {
