@@ -39,6 +39,9 @@ struct Screenshot {
     var length: CGFloat {
         return isPortrait ? size.height : size.width
     }
+    var device: UIImage {
+        return isPhone ? Device.phone : Device.pad
+    }
     
     let titleRectScale: CGFloat = 0.1
     var titleRect: CGRect {
@@ -86,14 +89,14 @@ struct Screenshot {
         let scale: CGFloat = 0.7
         let transform = CGAffineTransform(scaleX: scale, y: scale)
         
-        let deviceSize = Device.phone.size.applying(transform)
+        let deviceSize = device.size.applying(transform)
         
         if isPortrait {
             let deviceOrigin = CGPoint(
                 x: rect.midX - deviceSize.width / 2.0,
                 y: rect.midY - deviceSize.height / 2.0
             )
-            Device.phone.draw(in: CGRect(origin: deviceOrigin, size: deviceSize).offsetBy(dx: 0.0, dy: titleRect.height))            
+            device.draw(in: CGRect(origin: deviceOrigin, size: deviceSize).offsetBy(dx: 0.0, dy: titleRect.height))
         } else {
             let deviceOrigin = CGPoint(
                 x: rect.midY - deviceSize.width / 2.0,
@@ -102,7 +105,7 @@ struct Screenshot {
             context.saveGState()
             context.scaleBy(x: 1.0, y: -1.0)
             context.rotate(by: -90.0 * CGFloat(M_PI) / 180.0)
-            Device.phone.draw(in: CGRect(origin: deviceOrigin, size: deviceSize).offsetBy(dx: titleRect.height, dy: 0.0))
+            device.draw(in: CGRect(origin: deviceOrigin, size: deviceSize).offsetBy(dx: titleRect.height, dy: 0.0))
             context.restoreGState()
         }
         
@@ -131,17 +134,18 @@ struct Screenshot {
     }
     
     func drawTitle(_ title: String, in context: CGContext, attributed attributes: [String : Any]) {
-        let frame = title.boundingRect(
-            with: size,
-            options: [.usesLineFragmentOrigin, .usesFontLeading,],
-            attributes: attributes,
-            context: nil
-        )
+//        let frame = title.boundingRect(
+//            with: size,
+//            options: [.usesLineFragmentOrigin, .usesFontLeading,],
+//            attributes: attributes,
+//            context: nil
+//        )
         
         title.draw(
-            in:titleRect.offsetBy(
+            in: titleRect.offsetBy(
                 dx: 0.0,
                 dy: titleRect.midY
+//                dy: titleRect.midY - frame.midY
             ),
             withAttributes: attributes
         )
