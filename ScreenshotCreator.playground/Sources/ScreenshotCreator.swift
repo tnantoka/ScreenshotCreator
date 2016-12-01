@@ -171,7 +171,7 @@ public struct ScreenshotConfig {
 
 public struct ScreenshotCreator {
     let fileManager = FileManager.default
-    let screenshots = Screenshot.all
+    let screenshots = Screenshot.all.filter { $0.filename.hasPrefix("edhita") }
 
     let config: ScreenshotConfig
 

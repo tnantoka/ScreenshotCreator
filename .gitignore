@@ -68,4 +68,3 @@ fastlane/test_output
 *~
 .*.sw*
 *.xctimeline
-ScreenshotCreator.playground/Resources/Screenshots/*.png
