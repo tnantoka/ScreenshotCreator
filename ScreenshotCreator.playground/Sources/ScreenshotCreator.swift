@@ -170,10 +170,33 @@ public struct ScreenshotConfig {
 }
 
 public struct ScreenshotCreator {
-    public init() {
-    }
+    let fileManager = FileManager.default
+    let screenshots = Screenshot.all
 
-    public func preview(config: ScreenshotConfig) -> [UIImage] {
-        return Screenshot.all.map { $0.framed(config: config) }
+    let config: ScreenshotConfig
+
+    public init(config: ScreenshotConfig) {
+        self.config = config
+    }
+    
+    public func preview() -> [UIImage] {
+        return screenshots.map { $0.framed(config: config) }
+    }
+    
+    var docURL: URL {
+        return fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+    }
+    var dirURL: URL {
+        return docURL.appendingPathComponent("ScreenshotCreator", isDirectory: true)
+    }
+    public func save() {
+        let _ = try? fileManager.createDirectory(at: dirURL, withIntermediateDirectories: false, attributes: nil)
+
+        for screenshot in screenshots {
+            let data = UIImagePNGRepresentation(screenshot.framed(config: config))!
+            try? data.write(to: dirURL.appendingPathComponent("\(screenshot.filename).png"))
+        }
+        
+        print("$ open \(dirURL.relativePath)")
     }
 }
