@@ -5,7 +5,7 @@ import UIKit
 var config = ScreenshotConfig()
 config.backgroundColor = UIColor.brown
 config.titles = [
-    "phone1" : "タイトル"
+    "phone1" : "Hello, world!"
 ]
 
 let creator = ScreenshotCreator(config: config)
